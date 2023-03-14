@@ -40,6 +40,18 @@ principled_node.inputs['Metallic'].default_value = 0.75
 principled_node.inputs['Roughness'].default_value = 0.0
 principled_node.inputs['Specular'].default_value = 0.75
 
+# Add a camera object to the scene
+camera_location = (0, -5, -2) # Camera location (x,y,z)
+camera_rotation = (math.pi/3, 0, math.pi/-2) # Camera rotation (x,y,z)
+bpy.ops.object.camera_add(location=camera_location, rotation=camera_rotation)
+
+# Set the camera to point at the sphere
+camera = bpy.context.active_object
+track_constraint = camera.constraints.new(type='TRACK_TO')
+track_constraint.target = sphere
+track_constraint.track_axis = 'TRACK_NEGATIVE_Z'
+track_constraint.up_axis = 'UP_Y'
+
 # Animate the wave and Simple Deform modifiers
 for i in range(0, 385):
     t = i / 5.0 # Time in seconds
@@ -50,6 +62,14 @@ for i in range(0, 385):
     angle = math.sin(t) * math.pi / 2.0 # Angle for Simple Deform modifier
     deform_mod.angle = angle
     deform_mod.keyframe_insert(data_path='angle', frame=i)
+
+    c_t = i / 385.0
+    camera_angle = t * 2 * math.pi # Angle for camera rotation
+    camera_location = (10 * math.cos(camera_angle), 10 * math.sin(camera_angle), -2) # New camera location
+    camera.rotation_euler = (math.pi/3, 0, camera_angle + math.pi/2) # New camera rotation
+    camera.location = camera_location
+    camera.keyframe_insert(data_path='location', frame=i)
+    camera.keyframe_insert(data_path='rotation_euler', frame=i)
     
 # Animate the Principled BSDF node's base color
 for i in range(0, 95):
@@ -69,18 +89,6 @@ for i in range(0, 95):
     principled_node.inputs['Base Color'].default_value = (r_cos, g_sin, b_sin, 1)
     principled_node.inputs['Base Color'].keyframe_insert(data_path='default_value', frame=i+285)
         
-# Add a camera object to the scene
-camera_location = (0, -5, 2) # Camera location (x,y,z)
-camera_rotation = (math.pi/3, 0, math.pi/2) # Camera rotation (x,y,z)
-bpy.ops.object.camera_add(location=camera_location, rotation=camera_rotation)
-
-# Set the camera to point at the sphere
-camera = bpy.context.active_object
-track_constraint = camera.constraints.new(type='TRACK_TO')
-track_constraint.target = sphere
-track_constraint.track_axis = 'TRACK_NEGATIVE_Z'
-track_constraint.up_axis = 'UP_Y'
-
 # Add an environment texture to the scene
 world = bpy.context.scene.world
 env_texture = world.node_tree.nodes.new('ShaderNodeTexEnvironment')
@@ -89,6 +97,6 @@ world.node_tree.links.new(env_texture.outputs['Color'], background.inputs['Color
 
 # Set the environment texture to an HDR image
 # Free HDR downloaded from: https://polyhaven.com/hdris
-env_texture.image = bpy.data.images.load('/Path/To/HDR/Folder/canary_wharf_4k.hdr')
+env_texture.image = bpy.data.images.load('/Path/To/HDR/Folder/the_sky_is_on_fire_4k.hdr')
 
-bpy.context.scene.render.film_transparent = True
+bpy.context.scene.render.film_transparent = False
