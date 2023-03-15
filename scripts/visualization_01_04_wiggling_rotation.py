@@ -53,7 +53,7 @@ track_constraint.track_axis = 'TRACK_NEGATIVE_Z'
 track_constraint.up_axis = 'UP_Y'
 
 # Animate the wave and Simple Deform modifiers
-for i in range(0, 385):
+for i in range(0, 380):
     t = i / 5.0 # Time in seconds
     offset = math.sin(t) * 2.0 # Time offset for wave modifier
     wave_mod.time_offset = offset
@@ -63,7 +63,7 @@ for i in range(0, 385):
     deform_mod.angle = angle
     deform_mod.keyframe_insert(data_path='angle', frame=i)
 
-    c_t = i / 385.0
+    c_t = i / 380.0
     camera_angle = t * 2 * math.pi # Angle for camera rotation
     camera_location = (10 * math.cos(camera_angle), 10 * math.sin(camera_angle), -2) # New camera location
     camera.rotation_euler = (math.pi/3, 0, camera_angle + math.pi/2) # New camera rotation
